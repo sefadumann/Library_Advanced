@@ -10,6 +10,7 @@ class Library:
         self.categories = {}  # Dictionary to store books by category
 
     def add_user(self, username, role, email=None):
+        username = username.lower()  # Ensure username is stored in lowercase
         new_user = User(username, role, email)
         self.users.append(new_user)
         print(f"User '{username}' with role '{role}' has been added successfully.")
@@ -191,36 +192,69 @@ class User:
 # Example usage
 if __name__ == "__main__":
     library = Library()
+    current_user = None
     while True:
-        print("\nLibrary Menu:")
-        print("1. Add User")
-        print("2. Login")
-        print("3. Add Book")
-        print("4. List Books")
-        print("5. Borrow Book")
-        print("6. Return Book")
-        print("7. Search Book")
-        print("8. Remove Book")
-        print("9. List Borrowed Books")
-        print("10. Exit")
-        choice = input("Enter your choice: ")
+        if current_user is None:
+            print("\nLibrary Menu:")
+            print("1. Add User")
+            print("2. Login")
+            print("3. Exit")
+            choice = input("Enter your choice: ")
 
-        if choice == "1":
-            username = input("Enter username: ")
-            role = input("Enter role (librarian/member): ").lower()
-            email = input("Enter email (optional): ")
-            if role in ["librarian", "member"]:
-                library.add_user(username, role, email)
+            if choice == "1":
+                username = input("Enter username: ")
+                role = input("Enter role (librarian/member): ").lower()
+                email = input("Enter email (optional): ")
+                if role in ["librarian", "member"]:
+                    library.add_user(username, role, email)
+                else:
+                    print("Invalid role. Please enter 'librarian' or 'member'.")
+            elif choice == "2":
+                current_user = library.login()
+            elif choice == "3":
+                print("Exiting the library system. Goodbye!")
+                break
             else:
-                print("Invalid role. Please enter 'librarian' or 'member'.")
-        elif choice == "2":
-            user = library.login()
-            if user:
-                while True:
-                    print("\nUser Menu:")
-                    print("1. Add Book")
-                    print("2. List Books")
-                    print("3. Borrow Book")
-                    print("4. Return Book")
-                    print("5. Search Book")
-                    print("6. Remove Book")
+                print("Invalid choice. Please enter a number between 1 and 3.")
+        else:
+            print("\nUser Menu:")
+            if current_user.role == "librarian":
+                print("1. Add Book")
+                print("2. List Books")
+                print("3. Remove Book")
+                print("4. List Borrowed Books")
+                print("5. Logout")
+            elif current_user.role == "member":
+                print("1. List Books")
+                print("2. Borrow Book")
+                print("3. Return Book")
+                print("4. Search Book")
+                print("5. Logout")
+            user_choice = input("Enter your choice: ")
+
+            if current_user.role == "librarian":
+                if user_choice == "1":
+                    library.addbook(current_user)
+                elif user_choice == "2":
+                    library.list_books()
+                elif user_choice == "3":
+                    library.remove_book(current_user)
+                elif user_choice == "4":
+                    library.list_borrowed_books()
+                elif user_choice == "5":
+                    current_user = None
+                else:
+                    print("Invalid choice. Please enter a number between 1 and 5.")
+            elif current_user.role == "member":
+                if user_choice == "1":
+                    library.list_books()
+                elif user_choice == "2":
+                    library.borrow_book(current_user)
+                elif user_choice == "3":
+                    library.return_book(current_user)
+                elif user_choice == "4":
+                    library.search_book()
+                elif user_choice == "5":
+                    current_user = None
+                else:
+                    print("Invalid choice. Please enter a number between 1 and 5.")
